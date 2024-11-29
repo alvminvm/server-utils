@@ -37,4 +37,5 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     compileOnly("org.springframework.boot:spring-boot-starter-web")
     api(libs.grpc.stub)
+    api(libs.google.gson)
 }
