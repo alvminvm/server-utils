@@ -7,14 +7,14 @@ import jakarta.persistence.Converter
 import org.slf4j.LoggerFactory
 
 @Converter
-class MapConverter: AttributeConverter<Map<String, String>, String> {
+class MapListConverter: AttributeConverter<Map<String, List<String>>, String> {
     companion object {
         private val gson = Gson()
     }
 
-    private val logger = LoggerFactory.getLogger(MapConverter::class.java)
+    private val logger = LoggerFactory.getLogger(MapListConverter::class.java)
 
-    override fun convertToDatabaseColumn(map: Map<String, String>): String {
+    override fun convertToDatabaseColumn(map: Map<String, List<String>>): String {
         return try {
             gson.toJson(map)
         } catch (t: Throwable) {
@@ -23,9 +23,9 @@ class MapConverter: AttributeConverter<Map<String, String>, String> {
         }
     }
 
-    override fun convertToEntityAttribute(json: String): Map<String, String> {
+    override fun convertToEntityAttribute(json: String): Map<String, List<String>> {
         return try {
-            val type = object : TypeToken<Map<String, String>>(){}.type
+            val type = object : TypeToken<Map<String, List<String>>>(){}.type
             gson.fromJson(json, type)
         } catch (t: Throwable) {
             logger.error("convert json to map fail", t)
