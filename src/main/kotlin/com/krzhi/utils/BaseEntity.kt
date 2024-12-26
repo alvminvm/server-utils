@@ -8,19 +8,17 @@ import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 
 @MappedSuperclass
+@SoftDelete(columnName = "deleted_at", strategy = SoftDeleteType.DELETED, converter = SoftDeleteConverter::class)
 abstract class BaseEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
 
     @CreatedDate
-    @Column(updatable = false)
+    @Column(updatable = false, length = 13)
     var createdAt: Long = System.currentTimeMillis()
 
     @LastModifiedDate
+    @Column(length = 13)
     var updatedAt: Long = System.currentTimeMillis()
-
-    @SoftDelete(columnName = "deleted_at", strategy = SoftDeleteType.DELETED, converter = SoftDeleteConverter::class)
-    @Column(nullable = true)
-    var deleted: Boolean = false
 }
