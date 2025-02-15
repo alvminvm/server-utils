@@ -22,3 +22,9 @@ abstract class BaseEntity {
     @Column(length = 13)
     var updatedAt: Long = System.currentTimeMillis()
 }
+
+@MappedSuperclass
+abstract class UserBaseEntity: BaseEntity() {
+    @Column(updatable = false)
+    var uid = 0L
+}
