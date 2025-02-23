@@ -14,6 +14,7 @@ import java.util.Base64
 class AuthContext {
     companion object {
         private val METADATA_KEY_AUTHORIZATION = Metadata.Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER)
+        private val METADATA_KEY_SCOPE = Metadata.Key.of("Scope", Metadata.ASCII_STRING_MARSHALLER)
         private val CONTEXT_KEY_AUTH = Context.key<AuthInfo?>("auth")
 
         @Value("\${auth.secret-key}")
@@ -27,7 +28,7 @@ class AuthContext {
 
         private fun decrypt(encrypted: String): String {
             val key = SecretKeySpec(secretKey.toByteArray(), "AES")
-            val cipher = Cipher.getInstance("AES")
+            val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
             cipher.init(Cipher.DECRYPT_MODE, key)
 
             val decoded = Base64.getDecoder().decode(encrypted)
@@ -37,7 +38,7 @@ class AuthContext {
 
         private fun encrypt(plain: String): String {
             val key = SecretKeySpec(secretKey.toByteArray(), "AES")
-            val cipher = Cipher.getInstance("AES")
+            val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
             cipher.init(Cipher.ENCRYPT_MODE, key)
 
             val encrypted = cipher.doFinal(plain.toByteArray())
@@ -76,5 +77,22 @@ class AuthContext {
 
         val ctx = Context.current().withValue(CONTEXT_KEY_AUTH, info)
         return ctx
+    }
+
+    fun parseScope(metadata: Metadata): Map<String, String> {
+        val encrypted = metadata[METADATA_KEY_SCOPE] ?: return mapOf()
+        val scope = try {
+            decrypt(encrypted)
+        } catch (t: Throwable) {
+            log.warn("scope decrypt failed", t)
+            return mapOf()
+        }
+
+        return try {
+            gson.fromJson(scope, Map::class.java) as Map<String, String>
+        } catch (t: Throwable) {
+            log.warn("scope parse failed", t)
+            mapOf()
+        }
     }
 }
