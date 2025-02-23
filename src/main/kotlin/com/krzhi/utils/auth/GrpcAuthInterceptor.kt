@@ -5,6 +5,10 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 
+/**
+ * grpc认证拦截器
+ * 使用方式：Application 增加 scanBasePackages = ["com.krzhi.utils.auth"]
+ */
 @GrpcGlobalServerInterceptor
 class GrpcAuthInterceptor: ServerInterceptor {
     private val log = LoggerFactory.getLogger(GrpcAuthInterceptor::class.java)

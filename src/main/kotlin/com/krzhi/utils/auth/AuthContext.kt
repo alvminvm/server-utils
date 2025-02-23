@@ -14,30 +14,45 @@ import java.util.Base64
 class AuthContext {
     companion object {
         private val METADATA_KEY_AUTHORIZATION = Metadata.Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER)
-        private val CONTEXT_KEY_AUTH = Context.key<AuthInfo>("auth")
+        private val CONTEXT_KEY_AUTH = Context.key<AuthInfo?>("auth")
 
-        @Value("auth.secret-key")
-        private lateinit var secretKey: String
+        @Value("\${auth.secret-key}")
+        private var secretKey = "kecAGmTm3jDGCyNJ"
+        private val gson = Gson()
+
+        fun createToken(info: AuthInfo): String {
+            val json = gson.toJson(info)
+            return encrypt(json)
+        }
+
+        private fun decrypt(encrypted: String): String {
+            val key = SecretKeySpec(secretKey.toByteArray(), "AES")
+            val cipher = Cipher.getInstance("AES")
+            cipher.init(Cipher.DECRYPT_MODE, key)
+
+            val decoded = Base64.getDecoder().decode(encrypted)
+            val decrypted = cipher.doFinal(decoded)
+            return String(decrypted)
+        }
+
+        private fun encrypt(plain: String): String {
+            val key = SecretKeySpec(secretKey.toByteArray(), "AES")
+            val cipher = Cipher.getInstance("AES")
+            cipher.init(Cipher.ENCRYPT_MODE, key)
+
+            val encrypted = cipher.doFinal(plain.toByteArray())
+            val encoded = Base64.getEncoder().encodeToString(encrypted)
+            return encoded
+        }
     }
 
     private val log = LoggerFactory.getLogger(AuthContext::class.java)
-    private val gson = Gson()
 
-    val auth: AuthInfo get() = CONTEXT_KEY_AUTH.get()
-    val userId: Long get() = auth.userId
-
-    private fun decryptToken(encrypted: String): String {
-        val key = SecretKeySpec(secretKey.toByteArray(), "AES")
-        val cipher = Cipher.getInstance("AES")
-        cipher.init(Cipher.DECRYPT_MODE, key)
-
-        val decoded = Base64.getDecoder().decode(encrypted)
-        val decrypted = cipher.doFinal(decoded)
-        return String(decrypted)
-    }
+    val auth: AuthInfo? get() = CONTEXT_KEY_AUTH.get()
+    val userId: Long? get() = auth?.userId
 
     fun auth(metadata: Metadata): Context? {
-        val token = metadata[METADATA_KEY_AUTHORIZATION]?.replace("bearer ", "")
+        val token = metadata[METADATA_KEY_AUTHORIZATION]?.replace("bearer ", "", ignoreCase = true)
         if (token.isNullOrBlank()) {
             log.warn("token not found")
             return null
@@ -45,7 +60,7 @@ class AuthContext {
 
         // token aes 解密
         val json = try {
-            decryptToken(token)
+            decrypt(token)
         } catch (t: Throwable) {
             log.warn("token decrypt failed", t)
             return null
