@@ -62,6 +62,8 @@ class AuthContext {
     val auth: AuthInfo? get() = CONTEXT_KEY_AUTH.get()
     val userId: Long? get() = auth?.userId
 
+    val scope get() = CONTEXT_KEY_SCOPE.get() ?: mapOf()
+
     fun auth(metadata: Metadata, context: Context? = null): Context? {
         val token = metadata[METADATA_KEY_AUTHORIZATION]?.replace("bearer ", "", ignoreCase = true)
         if (token.isNullOrBlank()) {
