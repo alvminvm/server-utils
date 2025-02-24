@@ -14,19 +14,29 @@ import java.util.Base64
 class AuthContext {
     companion object {
         private val METADATA_KEY_AUTHORIZATION = Metadata.Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER)
-        private val METADATA_KEY_SCOPE = Metadata.Key.of("Scope", Metadata.ASCII_STRING_MARSHALLER)
         private val CONTEXT_KEY_AUTH = Context.key<AuthInfo?>("auth")
 
+        private val METADATA_KEY_SCOPE = Metadata.Key.of("Scope", Metadata.ASCII_STRING_MARSHALLER)
+        private val CONTEXT_KEY_SCOPE = Context.key<Map<String, String>?>("scope")
+
         @Value("\${auth.secret-key}")
-        private var secretKey = "kecAGmTm3jDGCyNJ"
+        private var authSecretKey = "kecAGmTm3jDGCyNJ"
+        @Value("\${scope.secret-key}")
+        private var scopeSecretKey = "kecAGmTm3jDGCyNJ"
+
         private val gson = Gson()
 
         fun createToken(info: AuthInfo): String {
             val json = gson.toJson(info)
-            return encrypt(json)
+            return encrypt(json, authSecretKey)
         }
 
-        private fun decrypt(encrypted: String): String {
+        fun createScope(data: Map<String, String>): String {
+            val json = gson.toJson(data)
+            return encrypt(json, scopeSecretKey)
+        }
+
+        private fun decrypt(encrypted: String, secretKey: String): String {
             val key = SecretKeySpec(secretKey.toByteArray(), "AES")
             val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
             cipher.init(Cipher.DECRYPT_MODE, key)
@@ -36,7 +46,7 @@ class AuthContext {
             return String(decrypted)
         }
 
-        private fun encrypt(plain: String): String {
+        private fun encrypt(plain: String, secretKey: String): String {
             val key = SecretKeySpec(secretKey.toByteArray(), "AES")
             val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
             cipher.init(Cipher.ENCRYPT_MODE, key)
@@ -52,7 +62,7 @@ class AuthContext {
     val auth: AuthInfo? get() = CONTEXT_KEY_AUTH.get()
     val userId: Long? get() = auth?.userId
 
-    fun auth(metadata: Metadata): Context? {
+    fun auth(metadata: Metadata, context: Context? = null): Context? {
         val token = metadata[METADATA_KEY_AUTHORIZATION]?.replace("bearer ", "", ignoreCase = true)
         if (token.isNullOrBlank()) {
             log.warn("token not found")
@@ -61,7 +71,7 @@ class AuthContext {
 
         // token aes 解密
         val json = try {
-            decrypt(token)
+            decrypt(token, authSecretKey)
         } catch (t: Throwable) {
             log.warn("token decrypt failed", t)
             return null
@@ -75,21 +85,28 @@ class AuthContext {
             return null
         }
 
-        val ctx = Context.current().withValue(CONTEXT_KEY_AUTH, info)
+        val ctx = (context ?: Context.current()).withValue(CONTEXT_KEY_AUTH, info)
         return ctx
     }
 
-    fun parseScope(metadata: Metadata): Map<String, String> {
+    fun scope(metadata: Metadata, context: Context? = null): Context? {
+        val scope = parseScope(metadata)
+        val ctx = (context ?: Context.current()).withValue(CONTEXT_KEY_SCOPE, scope)
+        return ctx
+    }
+
+    private fun parseScope(metadata: Metadata): Map<String, String> {
         val encrypted = metadata[METADATA_KEY_SCOPE] ?: return mapOf()
         val scope = try {
-            decrypt(encrypted)
+            decrypt(encrypted, scopeSecretKey)
         } catch (t: Throwable) {
             log.warn("scope decrypt failed", t)
             return mapOf()
         }
 
         return try {
-            gson.fromJson(scope, Map::class.java) as Map<String, String>
+            val map = gson.fromJson(scope, Map::class.java)
+            map.map { (k, v) -> k.toString() to v.toString() }.toMap()
         } catch (t: Throwable) {
             log.warn("scope parse failed", t)
             mapOf()

@@ -20,11 +20,13 @@ class GrpcAuthInterceptor: ServerInterceptor {
         headers: Metadata,
         next: ServerCallHandler<ReqT, RespT>
     ): ServerCall.Listener<ReqT> {
-        val ctx = context.auth(headers)
+        var ctx = context.auth(headers)
         if (ctx == null) {
             call.close(Status.UNAUTHENTICATED, headers)
             return object : ServerCall.Listener<ReqT>(){}
         }
+
+        ctx = context.scope(headers, ctx)
 
         return Contexts.interceptCall(ctx, call, headers, next)
     }
