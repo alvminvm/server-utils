@@ -16,3 +16,5 @@ fun StreamObserver<*>.onError(status: Status, message: String? = null) {
 fun StreamObserver<*>.onUnauthenticated() = onError(Status.UNAUTHENTICATED, "请重新登录")
 
 fun StreamObserver<*>.onInternal() = onError(Status.INTERNAL, "服务异常，请稍候")
+
+fun StreamObserver<*>.onInvalid() = onError(Status.INVALID_ARGUMENT, "参数异常，请重试")
