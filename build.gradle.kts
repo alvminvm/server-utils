@@ -43,8 +43,9 @@ dependencies {
     api("io.grpc:grpc-stub:1.58.1")
     api("com.google.code.gson:gson:2.11.0")
 
-    api("org.projectlombok:lombok:1.18.20")
+    api("org.projectlombok:lombok:1.18.36")
 
     api("commons-codec:commons-codec:1.18.0")
     api("commons-io:commons-io:2.19.0")
+    api("org.apache.commons:commons-lang3:3.17.0")
 }
