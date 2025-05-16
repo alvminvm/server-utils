@@ -40,10 +40,10 @@ dependencies {
 
     api("net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE")
 
+    api("com.squareup.okhttp3:okhttp:4.12.0")
+
     api("io.grpc:grpc-stub:1.58.1")
     api("com.google.code.gson:gson:2.11.0")
-
-    api("org.projectlombok:lombok:1.18.36")
 
     api("commons-codec:commons-codec:1.18.0")
     api("commons-io:commons-io:2.19.0")
