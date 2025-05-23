@@ -18,4 +18,14 @@ private fun SimpleDateFormat.parseOrFormat(date: Any?): Any? {
 
 fun yyyyMMdd(date: Any?) = yyyyMMdd.parseOrFormat(date)
 
+fun yyyyMMddInMs(date: Any?): Long? = (yyyyMMdd(date) as? Date)?.time
+
 fun yyyyMMddHHmmss(date: Any?) = yyyyMMddHHmmss.parseOrFormat(date)
+
+fun yyyyMMddYyyyMMdd(dateRange: String, pattern: String = "yyyyMMdd", delimiter: String = "-"): Pair<Date, Date>? {
+    val dates = dateRange.split(delimiter)
+    if (dates.size != 2) return null
+
+    val format = SimpleDateFormat(pattern)
+    return format.parse(dates[0]) to format.parse(dates[1])
+}
