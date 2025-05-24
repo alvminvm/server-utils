@@ -1,3 +1,4 @@
+import com.krzhi.utils.annotation.Slf4j.Companion.log
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -12,6 +13,7 @@ private fun SimpleDateFormat.parseOrFormat(date: Any?): Any? {
             else -> null
         }
     } catch (t: Throwable) {
+        log.warn("$date parse or format failed: $t")
         null
     }
 }

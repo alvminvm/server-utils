@@ -4,12 +4,14 @@ import com.krzhi.utils.annotation.Slf4j
 import com.krzhi.utils.annotation.Slf4j.Companion.log
 import org.apache.commons.codec.binary.Base64
 import org.springframework.util.Assert
+import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.security.*
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import javax.crypto.Cipher
+
 
 /**
  * RSA加解密工具类
@@ -47,12 +49,12 @@ object RsaUtils {
         //生成密匙对
         val keyPair = kpg.generateKeyPair()
         //得到公钥
-        val publicKey: Key = keyPair.getPublic()
-        val publicKeyStr = Base64.encodeBase64URLSafeString(publicKey.getEncoded())
+        val publicKey: Key = keyPair.public
+        val publicKeyStr = Base64.encodeBase64URLSafeString(publicKey.encoded)
         //得到私钥
-        val privateKey: Key = keyPair.getPrivate()
-        val privateKeyStr = Base64.encodeBase64URLSafeString(privateKey.getEncoded())
-        val keyPairMap: MutableMap<String?, String> = HashMap<String?, String>()
+        val privateKey: Key = keyPair.private
+        val privateKeyStr = Base64.encodeBase64URLSafeString(privateKey.encoded)
+        val keyPairMap: MutableMap<String?, String> = HashMap()
         keyPairMap.put("publicKey", publicKeyStr)
         keyPairMap.put("privateKey", privateKeyStr)
         return keyPairMap
@@ -94,7 +96,7 @@ object RsaUtils {
             val cipher = Cipher.getInstance(ALGORITHM_RSA)
             cipher.init(Cipher.ENCRYPT_MODE, publicKey)
 
-            val bytes = cipher.doFinal(data.toByteArray(StandardCharsets.UTF_8))
+            val bytes = rsaSplitCodec(cipher, Cipher.ENCRYPT_MODE, data.toByteArray(CHARSET))
             return Base64.encodeBase64URLSafeString(bytes)
         } catch (e: Exception) {
             throw RuntimeException("加密字符串[$data]时遇到异常", e)
@@ -114,7 +116,7 @@ object RsaUtils {
             //decrypt
             val cipher = Cipher.getInstance(ALGORITHM_RSA)
             cipher.init(Cipher.DECRYPT_MODE, publicKey)
-            val bytes = cipher.doFinal(Base64.decodeBase64(data))
+            val bytes = rsaSplitCodec(cipher, Cipher.DECRYPT_MODE, Base64.decodeBase64(data))
             return String(bytes, StandardCharsets.UTF_8)
         } catch (e: Exception) {
             throw RuntimeException("解密字符串[$data]时遇到异常", e)
@@ -134,7 +136,8 @@ object RsaUtils {
             //encrypt
             val cipher = Cipher.getInstance(ALGORITHM_RSA)
             cipher.init(Cipher.ENCRYPT_MODE, privateKey)
-            val bytes = cipher.doFinal(data.toByteArray(StandardCharsets.UTF_8))
+
+            val bytes = rsaSplitCodec(cipher, Cipher.ENCRYPT_MODE, data.toByteArray(CHARSET))
             return Base64.encodeBase64String(bytes)
         } catch (e: Exception) {
             throw RuntimeException("加密字符串[$data]时遇到异常", e)
@@ -154,7 +157,8 @@ object RsaUtils {
             //decrypt
             val cipher = Cipher.getInstance(ALGORITHM_RSA)
             cipher.init(Cipher.DECRYPT_MODE, privateKey)
-            val bytes = cipher.doFinal(Base64.decodeBase64(data))
+
+            val bytes = rsaSplitCodec(cipher, Cipher.DECRYPT_MODE, Base64.decodeBase64(data))
             return String(bytes, StandardCharsets.UTF_8)
         } catch (e: Exception) {
             throw RuntimeException("解密字符串[" + data + "]时遇到异常", e)
@@ -199,6 +203,44 @@ object RsaUtils {
             return signature.verify(Base64.decodeBase64(sign))
         } catch (e: Exception) {
             throw RuntimeException("验签字符串[$data]时遇到异常", e)
+        }
+    }
+
+    /**
+     * RSA算法分段加解密数据
+     *
+     * @param cipher 初始化了加解密工作模式后的javax.crypto.Cipher对象
+     * @param opmode 加解密模式,值为javax.crypto.Cipher.ENCRYPT_MODE/DECRYPT_MODE
+     * @return 加密或解密后得到的数据的字节数组
+     */
+    private fun rsaSplitCodec(cipher: Cipher, opmode: Int, datas: ByteArray): ByteArray {
+        val maxBlock = if (opmode == Cipher.DECRYPT_MODE) {
+            ALGORITHM_RSA_PRIVATE_KEY_LENGTH / 8
+        } else {
+            ALGORITHM_RSA_PRIVATE_KEY_LENGTH / 8 - 11
+        }
+
+        val out = ByteArrayOutputStream()
+        out.use {
+            var offset = 0
+            var i = 0
+            try {
+                while (datas.size > offset) {
+                    val buff = if (datas.size - offset > maxBlock) {
+                        cipher.doFinal(datas, offset, maxBlock)
+                    } else {
+                        cipher.doFinal(datas, offset, datas.size - offset)
+                    }
+                    out.write(buff, 0, buff.size)
+
+                    i++
+                    offset = i * maxBlock
+                }
+
+                return out.toByteArray()
+            } catch (e: java.lang.Exception) {
+                throw RuntimeException("加解密阀值为[$maxBlock]的数据时发生异常", e)
+            }
         }
     }
 
