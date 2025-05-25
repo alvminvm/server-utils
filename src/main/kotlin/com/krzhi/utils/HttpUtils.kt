@@ -26,14 +26,18 @@ object HttpUtils {
         .connectionPool(pool)
         .build()
 
-    fun postJson(url: String, payload: Any): String {
+    fun postJson(url: String, payload: Any, headers: Map<String, String> = mapOf()): String {
         val json = payload as? String ?: gson.toJson(payload)
         val body = json.toRequestBody(mediaType)
 
-        val request = Request.Builder()
+        val builder = Request.Builder()
             .url(url)
             .post(body)
-            .build()
+            .addHeader("Content-Type", "application/json")
+
+        headers.forEach { builder.addHeader(it.key, it.value) }
+
+        val request = builder.build()
 
         try {
             client.newCall(request).execute().use { rsp ->
@@ -44,8 +48,8 @@ object HttpUtils {
         }
     }
 
-    fun <T> postJson(url: String, payload: Any, type: Type): T {
-        val json = postJson(url, payload)
+    fun <T> postJson(url: String, payload: Any, type: Type, headers: Map<String, String> = mapOf()): T {
+        val json = postJson(url, payload, headers)
         return gson.fromJson(json, type)
     }
 }
