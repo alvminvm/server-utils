@@ -10,6 +10,7 @@ private fun SimpleDateFormat.parseOrFormat(date: Any?): Any? {
         when (date) {
             is String -> this.parse(date)
             is Date -> this.format(date)
+            is Long -> parseOrFormat(Date(date))
             else -> null
         }
     } catch (t: Throwable) {
