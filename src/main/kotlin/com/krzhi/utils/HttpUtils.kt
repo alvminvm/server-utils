@@ -52,4 +52,29 @@ object HttpUtils {
         val json = postJson(url, payload, headers)
         return gson.fromJson(json, type)
     }
+
+    fun postText(url: String, body: String, headers: Map<String, String> = mapOf()): String {
+        val builder = Request.Builder()
+            .url(url)
+            .post(body.toRequestBody("text/plain".toMediaTypeOrNull()))
+            .addHeader("Content-Type", "text/plain;charset=UTF-8;")
+
+        headers.forEach { builder.addHeader(it.key, it.value) }
+
+        val request = builder.build()
+
+        try {
+            client.newCall(request).execute().use { rsp ->
+                return rsp.body?.string() ?: ""
+            }
+        } catch (e: IOException) {
+            throw IllegalStateException(e)
+        }
+    }
+
+    fun <T> postText(url: String, body: String, type: Type, headers: Map<String, String> = mapOf()): T {
+        val json = postText(url, body, headers)
+        return gson.fromJson(json, type)
+    }
+
 }
