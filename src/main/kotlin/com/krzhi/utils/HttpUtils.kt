@@ -1,6 +1,7 @@
 package com.krzhi.utils
 
 import com.google.gson.Gson
+import com.krzhi.utils.annotation.Slf4j.Companion.log
 import okhttp3.ConnectionPool
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -50,7 +51,12 @@ object HttpUtils {
 
     fun <T> postJson(url: String, payload: Any, type: Type, headers: Map<String, String> = mapOf()): T {
         val json = postJson(url, payload, headers)
-        return gson.fromJson(json, type)
+        try {
+            return gson.fromJson(json, type)
+        } catch (t: Throwable) {
+            log.error("url: $url, json: $json", t)
+            throw t
+        }
     }
 
     fun postText(url: String, body: String, headers: Map<String, String> = mapOf()): String {
