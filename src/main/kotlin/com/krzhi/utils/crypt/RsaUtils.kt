@@ -60,7 +60,7 @@ object RsaUtils {
         return keyPairMap
     }
 
-    private fun getPublicKey(key: String): PublicKey? {
+    fun getPublicKey(key: String): PublicKey? {
         try {
             val keyBytes = Base64.decodeBase64(key.toByteArray(StandardCharsets.UTF_8))
             val keySpec = X509EncodedKeySpec(keyBytes)
@@ -71,7 +71,7 @@ object RsaUtils {
         }
     }
 
-    private fun getPrivateKey(key: String): PrivateKey? {
+    fun getPrivateKey(key: String): PrivateKey? {
         try {
             val keyBytes = Base64.decodeBase64(key.toByteArray(StandardCharsets.UTF_8))
             val keySpec = PKCS8EncodedKeySpec(keyBytes)
