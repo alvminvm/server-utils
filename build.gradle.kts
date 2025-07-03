@@ -48,4 +48,6 @@ dependencies {
     api("commons-codec:commons-codec:1.18.0")
     api("commons-io:commons-io:2.19.0")
     api("org.apache.commons:commons-lang3:3.17.0")
+
+    api("org.bitbucket.b_c:jose4j:0.9.4")
 }
