@@ -6,9 +6,11 @@ import org.hibernate.annotations.SoftDelete
 import org.hibernate.annotations.SoftDeleteType
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @MappedSuperclass
 @SoftDelete(columnName = "deleted_at", strategy = SoftDeleteType.DELETED, converter = SoftDeleteConverter::class)
+@EntityListeners(AuditingEntityListener::class)
 abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
