@@ -1,10 +1,10 @@
 plugins {
     id("java-library")
     id("idea")
-    kotlin("plugin.spring") version "1.9.24"
-    id("org.springframework.boot") version "3.3.2"
+    kotlin("plugin.spring") version "1.9.25"
+    id("org.springframework.boot") version "3.3.4"
     id("io.spring.dependency-management") version "1.1.6"
-    kotlin("jvm") version "1.9.24"
+    kotlin("jvm") version "1.9.25"
 }
 
 group = "com.krzhi"
@@ -29,6 +29,7 @@ repositories {
     maven { setUrl("https://maven.aliyun.com/repository/gradle-plugin/") }
     maven { setUrl("https://maven.aliyun.com/repository/spring-plugin/") }
     maven { setUrl("https://oss.sonatype.org/service/local/staging/deploy/maven2/") }
+
 
     mavenCentral()
 }

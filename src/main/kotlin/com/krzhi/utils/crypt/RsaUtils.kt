@@ -244,29 +244,29 @@ object RsaUtils {
         }
     }
 
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val channelRsaKey = generateKeyPair()
-        val channelPrivateKey = channelRsaKey["privateKey"]!!
-        val channelPublicKey = channelRsaKey["publicKey"]!!
-        log.info("channelPrivateKey: {}", channelPrivateKey)
-        log.info("channelPublicKey: {}", channelPublicKey)
-
-        val platformRsaKey = generateKeyPair()
-        val platformPrivateKey = platformRsaKey["privateKey"]!!
-        val platformPublicKey = platformRsaKey["publicKey"]!!
-        log.info("platformPrivateKey: {}", platformPrivateKey)
-        log.info("platformPublicKey: {}", platformPublicKey)
-
-        val plainText = "{\"test\":\"test\"}"
-
-        val encryptData = encryptByPublicKey(plainText, platformPublicKey)
-        val sign = sign(encryptData, channelPrivateKey)
-
-        val verified = verify(encryptData, channelPublicKey, sign)
-        Assert.isTrue(verified, "verify fail!")
-
-        val decrypted = decryptByPrivateKey(encryptData, platformPrivateKey)
-        Assert.isTrue(decrypted == plainText, "")
-    }
+//    @JvmStatic
+//    fun main(args: Array<String>) {
+//        val channelRsaKey = generateKeyPair()
+//        val channelPrivateKey = channelRsaKey["privateKey"]!!
+//        val channelPublicKey = channelRsaKey["publicKey"]!!
+//        log.info("channelPrivateKey: {}", channelPrivateKey)
+//        log.info("channelPublicKey: {}", channelPublicKey)
+//
+//        val platformRsaKey = generateKeyPair()
+//        val platformPrivateKey = platformRsaKey["privateKey"]!!
+//        val platformPublicKey = platformRsaKey["publicKey"]!!
+//        log.info("platformPrivateKey: {}", platformPrivateKey)
+//        log.info("platformPublicKey: {}", platformPublicKey)
+//
+//        val plainText = "{\"test\":\"test\"}"
+//
+//        val encryptData = encryptByPublicKey(plainText, platformPublicKey)
+//        val sign = sign(encryptData, channelPrivateKey)
+//
+//        val verified = verify(encryptData, channelPublicKey, sign)
+//        Assert.isTrue(verified, "verify fail!")
+//
+//        val decrypted = decryptByPrivateKey(encryptData, platformPrivateKey)
+//        Assert.isTrue(decrypted == plainText, "")
+//    }
 }
