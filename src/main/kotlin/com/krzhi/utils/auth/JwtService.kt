@@ -12,13 +12,13 @@ import kotlin.time.Duration.Companion.days
 
 @Slf4j
 @Component
-class Jwt {
+class JwtService {
     companion object {
         private const val CLAIM_NAME_PRO_EXPIRE_AT = "pexpat"
     }
 
-    @Value("\${jwt.secret-key}")
-    private lateinit var secretKey: String
+    @Value("\${spring.jwt.secret}")
+    private lateinit var secret: String
 
     fun createAuthToken(info: UserAuthInfo): String {
         return Jwts.builder()
@@ -27,7 +27,7 @@ class Jwt {
             .setAudience("user")
             .setExpiration(Date(System.currentTimeMillis() + 30.days.inWholeMilliseconds))
             .claim(CLAIM_NAME_PRO_EXPIRE_AT, info.proExpireAt)
-            .signWith(SignatureAlgorithm.HS512, secretKey)
+            .signWith(SignatureAlgorithm.HS512, secret)
             .compact()
     }
 
@@ -48,7 +48,7 @@ class Jwt {
 
     private fun parseJwt(token: String): Claims? {
         return try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)?.body
+            Jwts.parser().setSigningKey(secret).parseClaimsJws(token)?.body
         } catch (t: Throwable) {
             log.warn("JWT token verification failed", t)
             null
