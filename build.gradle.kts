@@ -36,6 +36,7 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    api("org.springframework.boot:spring-boot-starter-security")
     compileOnly("org.springframework.boot:spring-boot-starter-web")
     compileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
 
@@ -50,5 +51,5 @@ dependencies {
     api("commons-io:commons-io:2.19.0")
     api("org.apache.commons:commons-lang3:3.17.0")
 
-    api("org.bitbucket.b_c:jose4j:0.9.4")
+    api("io.jsonwebtoken:jjwt:0.7.0")
 }
