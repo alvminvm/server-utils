@@ -40,11 +40,8 @@ dependencies {
     compileOnly("org.springframework.boot:spring-boot-starter-web")
     compileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
 
-    api("net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE")
-
     api("com.squareup.okhttp3:okhttp:4.12.0")
 
-    api("io.grpc:grpc-stub:1.58.1")
     api("com.google.code.gson:gson:2.11.0")
 
     api("commons-codec:commons-codec:1.18.0")
