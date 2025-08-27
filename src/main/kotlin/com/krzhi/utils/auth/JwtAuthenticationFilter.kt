@@ -19,8 +19,7 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
         val token = request.getHeader("Authorization")?.removePrefix("Bearer ") ?: ""
         if (token.isBlank()) {
-            // 返回 401
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+            chain.doFilter(request, response)
             return
         }
 

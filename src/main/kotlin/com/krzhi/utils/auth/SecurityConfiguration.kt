@@ -23,7 +23,7 @@ class SecurityConfiguration {
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
-                it.requestMatchers("/auth/v1/**").permitAll()
+                it.requestMatchers("/auth/v1/**", "/wx/v1/cb").permitAll()
                 it.anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
