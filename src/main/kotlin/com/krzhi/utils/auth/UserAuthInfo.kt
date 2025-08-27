@@ -1,6 +1,6 @@
 package com.krzhi.utils.auth
 
-data class AuthInfo(
+data class UserAuthInfo(
     val userId: Long,
     val proExpireAt: Long,
 )

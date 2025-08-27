@@ -14,32 +14,31 @@ import kotlin.time.Duration.Companion.days
 @Component
 class Jwt {
     companion object {
-        private const val CLAIM_PRO_EXPIRE_AT = "pexpat"
+        private const val CLAIM_NAME_PRO_EXPIRE_AT = "pexpat"
     }
 
-    @Value("\${jwt.aes-key}")
-    private lateinit var aesKey: String
     @Value("\${jwt.secret-key}")
     private lateinit var secretKey: String
 
-    fun createAuthToken(info: AuthInfo): String {
+    fun createAuthToken(info: UserAuthInfo): String {
         return Jwts.builder()
             .setIssuedAt(Date())
             .setSubject("${info.userId}")
             .setAudience("user")
             .setExpiration(Date(System.currentTimeMillis() + 30.days.inWholeMilliseconds))
-            .claim(CLAIM_PRO_EXPIRE_AT, info.proExpireAt)
+            .claim(CLAIM_NAME_PRO_EXPIRE_AT, info.proExpireAt)
             .signWith(SignatureAlgorithm.HS512, secretKey)
             .compact()
     }
 
-    fun parseAuthToken(token: String): AuthInfo? {
+    fun parseAuthToken(token: String): UserAuthInfo? {
         return try {
             val claims = parseJwt(token) ?: return null
             if (claims.audience != "user") return null
-            AuthInfo(
+
+            UserAuthInfo(
                 userId = claims.subject.toLong(),
-                proExpireAt = claims.get(CLAIM_PRO_EXPIRE_AT, Long::class.java),
+                proExpireAt = claims.get(CLAIM_NAME_PRO_EXPIRE_AT, Long::class.java),
             )
         } catch (t: Throwable) {
             log.error("parse auth token exception", t)
