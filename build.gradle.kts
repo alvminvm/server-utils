@@ -35,10 +35,18 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    api("org.jetbrains.kotlin:kotlin-reflect")
+
+    api("org.springframework.boot:spring-boot-starter")
+    api("org.springframework.boot:spring-boot-starter-data-jpa")
+    api("org.springframework.boot:spring-boot-starter-web")
     api("org.springframework.boot:spring-boot-starter-security")
-    compileOnly("org.springframework.boot:spring-boot-starter-web")
-    compileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
+    api("org.springframework.boot:spring-boot-configuration-processor")
+    api("org.springframework.boot:spring-boot-starter-data-redis")
+    api("org.springframework.boot:spring-boot-starter-cache")
+
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    runtimeOnly("com.mysql:mysql-connector-j")
 
     api("com.squareup.okhttp3:okhttp:4.12.0")
 
