@@ -4,10 +4,12 @@ import com.krzhi.utils.annotation.Slf4j
 import com.krzhi.utils.annotation.Slf4j.Companion.log
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.io.Decoders
+import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.*
+import javax.crypto.SecretKey
 import kotlin.time.Duration.Companion.days
 
 @Slf4j
@@ -22,19 +24,23 @@ class JwtService {
 
     fun createAuthToken(info: UserAuthInfo): String {
         return Jwts.builder()
-            .setIssuedAt(Date())
-            .setSubject("${info.userId}")
-            .setAudience("user")
-            .setExpiration(Date(System.currentTimeMillis() + 30.days.inWholeMilliseconds))
+            .issuedAt(Date())
+            .subject("${info.userId}")
+            .audience().add("user").and()
+            .expiration(Date(System.currentTimeMillis() + 30.days.inWholeMilliseconds))
             .claim(CLAIM_NAME_PRO_EXPIRE_AT, info.proExpireAt)
-            .signWith(SignatureAlgorithm.HS512, secret)
+            .encryptWith(getSigningKey(), Jwts.ENC.A128CBC_HS256)
             .compact()
+    }
+
+    private fun getSigningKey(): SecretKey {
+        return Keys.hmacShaKeyFor(secret.toByteArray())
     }
 
     fun parseAuthToken(token: String): UserAuthInfo? {
         return try {
             val claims = parseJwt(token) ?: return null
-            if (claims.audience != "user") return null
+            if (claims.audience.contains("user")) return null
 
             UserAuthInfo(
                 userId = claims.subject.toLong(),
@@ -48,7 +54,11 @@ class JwtService {
 
     private fun parseJwt(token: String): Claims? {
         return try {
-            Jwts.parser().setSigningKey(secret).parseClaimsJws(token)?.body
+            Jwts.parser()
+                .decryptWith(getSigningKey())
+                .build()
+                .parseEncryptedClaims(token)
+                ?.payload
         } catch (t: Throwable) {
             log.warn("JWT token verification failed", t)
             null

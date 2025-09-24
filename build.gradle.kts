@@ -56,5 +56,5 @@ dependencies {
     api("commons-io:commons-io:2.19.0")
     api("org.apache.commons:commons-lang3:3.17.0")
 
-    api("io.jsonwebtoken:jjwt:0.7.0")
+    api("io.jsonwebtoken:jjwt:0.13.0")
 }
