@@ -40,11 +40,15 @@ class JwtService {
     fun parseAuthToken(token: String): UserAuthInfo? {
         return try {
             val claims = parseJwt(token) ?: return null
-            if (claims.audience.contains("user")) return null
+            if (!claims.audience.contains("user")) return null
+
+            val proExpireAt = claims[CLAIM_NAME_PRO_EXPIRE_AT] as? Long
+                ?: (claims[CLAIM_NAME_PRO_EXPIRE_AT] as? Int)?.toLong()
+                ?: 0
 
             UserAuthInfo(
                 userId = claims.subject.toLong(),
-                proExpireAt = claims.get(CLAIM_NAME_PRO_EXPIRE_AT, Long::class.java),
+                proExpireAt = proExpireAt,
             )
         } catch (t: Throwable) {
             log.error("parse auth token exception", t)
