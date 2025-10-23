@@ -11,11 +11,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 @MappedSuperclass
 @SoftDelete(columnName = "deleted_at", strategy = SoftDeleteType.DELETED, converter = SoftDeleteConverter::class)
 @EntityListeners(AuditingEntityListener::class)
-abstract class BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0
-
+abstract class TimeEntity {
     @CreatedDate
     @Column(updatable = false, length = 13)
     var createdAt: Long = System.currentTimeMillis()
@@ -23,6 +19,13 @@ abstract class BaseEntity {
     @LastModifiedDate
     @Column(length = 13)
     var updatedAt: Long = System.currentTimeMillis()
+}
+
+@MappedSuperclass
+abstract class BaseEntity: TimeEntity() {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0
 }
 
 @MappedSuperclass

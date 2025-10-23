@@ -21,5 +21,7 @@ data class Result(
         fun illegalArgs() = Result(-2, "参数有误")
 
         fun systemError() = Result(-3, "系统错误，请稍候重试")
+
+        fun denied() = Result(-4, "无权限")
     }
 }
