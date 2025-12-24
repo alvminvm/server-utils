@@ -1,27 +1,36 @@
 package com.krzhi.utils
 
-data class Result(
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
+
+data class Result<T>(
     var code: Int,
     var msg: String,
-    var data: Any? = null
+    var data: T? = null
 ) {
-    init {
-        // todo: 加密返回
-    }
 
     companion object {
-        fun success(data: Any? = null): Result {
+        @OptIn(ExperimentalContracts::class)
+        fun <T> Result<T>?.isSuccess(): Boolean {
+            contract { returnsNotNull() }
+            return this?.code == 0 && data != null
+        }
+
+        @OptIn(ExperimentalContracts::class)
+        fun <T> Result<T>?.isFail() = !isSuccess()
+
+        fun <T> success(data: T? = null): Result<T> {
             return Result(0, "success", data)
         }
 
-        fun fail(msg: String): Result {
-            return Result(-1, msg)
+        fun <T> fail(msg: String): Result<T> {
+            return Result<T>(-1, msg)
         }
 
-        fun illegalArgs() = Result(-2, "参数有误")
+        fun <T> illegalArgs() = Result<T>(-2, "参数有误")
 
-        fun systemError() = Result(-3, "系统错误，请稍候重试")
+        fun <T> systemError() = Result<T>(-3, "系统错误，请稍候重试")
 
-        fun denied() = Result(-4, "无权限")
+        fun <T> denied() = Result<T>(-4, "无权限")
     }
 }
