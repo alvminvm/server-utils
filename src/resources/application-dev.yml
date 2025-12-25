@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: server-sqcy
+  # 数据库的基本配置
+  datasource:
+    username: daichao_dev
+    password: wvn7gwr-KDA-rwc1waj
+    url: jdbc:mysql://rm-f8zt0676620lv78ngjo.mysql.rds.aliyuncs.com/daichao_dev?characterEncoding=utf8&serverTimezone=GMT%2B8
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  data:
+    redis:
+      database: 2
+      password: tDuM45hra3jnqZvj
+      host: 47.120.20.37
+
+  cache:
+    redis:
+      time-to-live: 10m
+    type: redis
+
+logging:
+  level:
+    com.zdj.loan: debug
+    root: info
+
+jwt:
+  secret: asdlfkjsdlkle
+

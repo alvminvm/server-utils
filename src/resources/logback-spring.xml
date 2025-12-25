@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+scan：当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。
+scanPeriod：设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。
+debug：当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。
+-->
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <springProperty scope="context" name="app_name" source="spring.application.name"/>
+    <property name="base_log_dir" value="logs"/>
+    <property name="file_log_pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%-4level] %logger{30}:%line %msg%n"/>
+    <property name="console_log_pattern" value="%red(%d{yyyy-MM-dd HH:mm:ss.SSS}) %green([%thread]) %blue([%-4level]) %cyan(%logger{30}:%line) %msg%n"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!--日志文件输出格式-->
+            <pattern>${console_log_pattern}</pattern>
+            <!-- 设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 指定日志文件的名称 -->
+        <file>${base_log_dir}/${app_name}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--设置日志命名模式:根据日期命名-->
+            <fileNamePattern>${base_log_dir}/history/${app_name}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!--最多保留15天日志文件，默认30天-->
+            <maxHistory>15</maxHistory>
+            <!-- 设置每个日志文件的最大文件大小，超过指定大小后，会将日志文件进行拆分 0,1,2... -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${file_log_pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 时间滚动输出 level为 error 日志 -->
+    <!-- 配置输出到文件的日志样式，滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件 -->
+    <appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 指定日志文件的名称 -->
+        <file>${base_log_dir}/error.log</file>
+        <!-- 此日志文件只记录error级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--设置日志命名模式:根据日期命名-->
+            <fileNamePattern>${base_log_dir}/error/error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!--最多保留15天日志文件，默认30天-->
+            <maxHistory>15</maxHistory>
+            <!-- 设置每个日志文件的最大文件大小，超过指定大小后，会将日志文件进行拆分 0,1,2... -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>3MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${file_log_pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--普通日志输出到控制台-->
+    <root level="info">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+        <appender-ref ref="error"/>
+    </root>
+
+    <!--生产环境:输出到文件-->
+    <springProfile name="prod">
+        <root level="info">
+            <appender-ref ref="file"/>
+            <appender-ref ref="error"/>
+        </root>
+    </springProfile>
+</configuration>

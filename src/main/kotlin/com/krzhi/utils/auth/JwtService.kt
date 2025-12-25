@@ -19,7 +19,7 @@ class JwtService {
         private const val CLAIM_NAME_PRO_EXPIRE_AT = "pexpat"
     }
 
-    @Value("\${spring.jwt.secret}")
+    @Value("\${jwt.secret}")
     private lateinit var secret: String
 
     fun createAuthToken(info: UserAuthInfo): String {
