@@ -31,3 +31,5 @@ logging:
 jwt:
   secret: asdlfkjsdlkle
 
+auth:
+  permit-all-paths: /wallpapers/**

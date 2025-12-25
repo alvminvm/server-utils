@@ -1,5 +1,6 @@
 package com.krzhi.utils.auth
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -16,6 +17,9 @@ class SecurityConfiguration {
     @Autowired
     private lateinit var jwtAuthenticationFilter: JwtAuthenticationFilter
 
+    @Value("\${auth.permit-all-paths}")
+    private lateinit var permitAllPaths: String
+
     @Bean
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -24,6 +28,7 @@ class SecurityConfiguration {
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
                 it.requestMatchers("/auth/v1/**", "/wx/v1/cb").permitAll()
+                it.requestMatchers(*permitAllPaths.split(",").toTypedArray()).permitAll()
                 it.anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
