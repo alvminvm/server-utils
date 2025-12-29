@@ -1,5 +1,6 @@
 package com.krzhi.utils
 
+import com.google.gson.Gson
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -10,6 +11,8 @@ data class Result<T>(
 ) {
 
     companion object {
+        private val gson = Gson()
+
         @OptIn(ExperimentalContracts::class)
         fun <T> Result<T>?.isSuccess(): Boolean {
             contract { returnsNotNull() }
@@ -32,5 +35,9 @@ data class Result<T>(
         fun <T> systemError() = Result<T>(-3, "系统错误，请稍候重试")
 
         fun <T> denied() = Result<T>(-4, "无权限")
+    }
+
+    override fun toString(): String {
+        return gson.toJson(this)
     }
 }
