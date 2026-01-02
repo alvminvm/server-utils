@@ -14,22 +14,22 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 abstract class TimeEntity {
     @CreatedDate
     @Column(updatable = false, length = 13)
-    var createdAt: Long = System.currentTimeMillis()
+    open var createdAt: Long = System.currentTimeMillis()
 
     @LastModifiedDate
     @Column(length = 13)
-    var updatedAt: Long = System.currentTimeMillis()
+    open var updatedAt: Long = System.currentTimeMillis()
 }
 
 @MappedSuperclass
 abstract class BaseEntity: TimeEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0
+    open var id: Long = 0
 }
 
 @MappedSuperclass
 abstract class UserBaseEntity: BaseEntity() {
     @Column(updatable = false)
-    var uid = 0L
+    open var uid = 0L
 }

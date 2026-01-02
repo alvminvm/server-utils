@@ -4,7 +4,6 @@ import com.krzhi.utils.annotation.Slf4j
 import com.krzhi.utils.annotation.Slf4j.Companion.log
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -17,6 +16,7 @@ import kotlin.time.Duration.Companion.days
 class JwtService {
     companion object {
         private const val CLAIM_NAME_PRO_EXPIRE_AT = "pexpat"
+        private const val CLAIM_NAME_ROLE = "roles"
     }
 
     @Value("\${jwt.secret}")
@@ -29,6 +29,7 @@ class JwtService {
             .audience().add("user").and()
             .expiration(Date(System.currentTimeMillis() + 30.days.inWholeMilliseconds))
             .claim(CLAIM_NAME_PRO_EXPIRE_AT, info.proExpireAt)
+            .claim(CLAIM_NAME_ROLE, info.roles.joinToString(";"))
             .encryptWith(getSigningKey(), Jwts.ENC.A128CBC_HS256)
             .compact()
     }
@@ -46,9 +47,12 @@ class JwtService {
                 ?: (claims[CLAIM_NAME_PRO_EXPIRE_AT] as? Int)?.toLong()
                 ?: 0
 
+            val roles = (claims[CLAIM_NAME_ROLE] as? String)?.split(";") ?: emptyList()
+
             UserAuthInfo(
                 userId = claims.subject.toLong(),
                 proExpireAt = proExpireAt,
+                roles = roles,
             )
         } catch (t: Throwable) {
             log.error("parse auth token exception", t)

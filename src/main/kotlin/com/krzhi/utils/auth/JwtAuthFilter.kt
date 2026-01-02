@@ -5,13 +5,14 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
-class JwtAuthenticationFilter : OncePerRequestFilter() {
+class JwtAuthFilter : OncePerRequestFilter() {
 
     @Autowired
     private lateinit var jwt: JwtService
@@ -30,7 +31,8 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
             return
         }
 
-        val authentication = UsernamePasswordAuthenticationToken(info, token, listOf())
+        val authorities = info.roles.map { SimpleGrantedAuthority("ROLE_${it.uppercase()}") }
+        val authentication = UsernamePasswordAuthenticationToken(info, token, authorities)
         authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
         SecurityContextHolder.getContext().authentication = authentication
         chain.doFilter(request, response)
