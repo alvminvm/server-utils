@@ -1,4 +1,4 @@
-package com.krzhi.utils
+package com.krzhi.utils.dto
 
 import com.google.gson.Gson
 import kotlin.contracts.ExperimentalContracts

@@ -1,5 +1,6 @@
 package com.krzhi.utils
 
+import com.krzhi.utils.dto.Result
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authorization.AuthorizationDeniedException
 import org.springframework.web.bind.annotation.ExceptionHandler
