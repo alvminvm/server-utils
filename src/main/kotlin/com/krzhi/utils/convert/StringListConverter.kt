@@ -23,7 +23,9 @@ class StringListConverter: AttributeConverter<List<String>, String> {
         }
     }
 
-    override fun convertToEntityAttribute(json: String): List<String> {
+    override fun convertToEntityAttribute(json: String?): List<String> {
+        if (json.isNullOrBlank()) return listOf()
+
         return try {
             val type = object : TypeToken<List<String>>(){}.type
             gson.fromJson(json, type)
