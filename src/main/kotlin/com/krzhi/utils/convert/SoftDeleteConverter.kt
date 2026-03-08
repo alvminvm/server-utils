@@ -5,8 +5,8 @@ import jakarta.persistence.Converter
 
 @Converter
 class SoftDeleteConverter: AttributeConverter<Boolean, Long> {
-    override fun convertToDatabaseColumn(deleted: Boolean): Long {
-        return if (deleted) System.currentTimeMillis() else 0
+    override fun convertToDatabaseColumn(deleted: Boolean?): Long {
+        return if (deleted == true) System.currentTimeMillis() else 0
     }
 
     override fun convertToEntityAttribute(deletedAt: Long): Boolean {
