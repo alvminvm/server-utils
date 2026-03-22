@@ -10,6 +10,7 @@ class SplitStringListConverter: AttributeConverter<List<String>, String> {
     }
 
     override fun convertToEntityAttribute(value: String): List<String> {
+        if (value.isBlank()) return emptyList()
         return value.split(",")
     }
 }
