@@ -57,4 +57,7 @@ dependencies {
     api("org.apache.commons:commons-lang3:3.17.0")
 
     api("io.jsonwebtoken:jjwt:0.13.0")
+
+    api("com.sksamuel.scrimage:scrimage-core:4.3.0")
+    api("com.sksamuel.scrimage:scrimage-webp:4.3.0")
 }

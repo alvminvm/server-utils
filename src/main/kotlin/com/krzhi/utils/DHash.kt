@@ -1,14 +1,14 @@
 package com.krzhi.utils
 
+import com.sksamuel.scrimage.ImmutableImage
 import java.awt.Image
 import java.awt.image.BufferedImage
-import java.io.InputStream
-import javax.imageio.ImageIO
 
 object DHash {
 
-    fun calculate(inputStream: InputStream): String {
-        val originalImage: BufferedImage = ImageIO.read(inputStream) ?: throw IllegalArgumentException("Invalid image stream")
+    fun calculate(imageBytes: ByteArray): String {
+        val originalImage: BufferedImage = ImmutableImage.loader().fromBytes(imageBytes).awt()
+            ?: throw IllegalArgumentException("Invalid image stream")
         return calculate(originalImage)
     }
 
