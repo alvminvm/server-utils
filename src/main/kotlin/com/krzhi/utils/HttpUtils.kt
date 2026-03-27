@@ -14,6 +14,30 @@ import java.lang.reflect.Type
 object HttpUtils {
     private val gson = Gson()
 
+    fun get(url: String, headers: Map<String, String> = mapOf()): String {
+        val builder = Request.Builder().url(url).get()
+        headers.forEach { builder.addHeader(it.key, it.value) }
+        val request = builder.build()
+
+        try {
+            httpClient.newCall(request).execute().use { rsp ->
+                return rsp.body?.string() ?: ""
+            }
+        } catch (e: IOException) {
+            throw IllegalStateException(e)
+        }
+    }
+
+    fun <T> get(url: String, type: Type, headers: Map<String, String> = mapOf()): T {
+        val json = get(url, headers)
+        try {
+            return gson.fromJson(json, type)
+        } catch (t: Throwable) {
+            log.error("url: $url, json: $json", t)
+            throw t
+        }
+    }
+
     fun postJson(url: String, payload: Any, headers: Map<String, String> = mapOf()): String {
         val json = payload as? String ?: gson.toJson(payload)
         val body = json.toRequestBody(mediaType)
